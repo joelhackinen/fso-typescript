@@ -12,6 +12,11 @@ interface Result {
   ratingDescription: RatingDescription;
 }
 
+interface Input {
+  data: number[];
+  target: number;
+}
+
 const ratingDesc = (rating: Rating): RatingDescription => {
   switch (rating) {
     case 3:
@@ -23,8 +28,11 @@ const ratingDesc = (rating: Rating): RatingDescription => {
   }
 }
 
+
 const calculateExercises = (arr: number[], target: number): Result => {
   const periodLength = arr.length;
+  if (periodLength == 0) throw new Error("Empty array!");
+
   const average = arr.reduce((p, c) => p + c, 0) / periodLength;
   let rating: Rating;
 
@@ -47,4 +55,33 @@ const calculateExercises = (arr: number[], target: number): Result => {
   };
 }
 
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2));
+const parseArguments = (args: string[]): Input => {
+  if (args.length < 4) throw new Error('Not enough arguments');
+
+  const data = args.slice(3).map(v => Number(v));
+  const target = Number(args[2]);
+
+  if (isNaN(target)) throw new Error('Target should be a number!');
+
+  data.forEach(n => {
+    if (isNaN(n)) throw new Error('Exercise hours should be numbers!');
+  });
+
+  return {
+    data,
+    target
+  };
+}
+
+try {
+  const { data, target } = parseArguments(process.argv);
+  console.log(calculateExercises(data, target));
+} catch (error: unknown) {
+  let errorMessage = 'Something bad happened.'
+  if (error instanceof Error) {
+    errorMessage += ' Error: ' + error.message;
+  }
+  console.log(errorMessage);
+}
+
+export {};
