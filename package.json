@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "ts-node": "ts-node"
+    "ts-node": "ts-node",
+    "multiply": "ts-noe multiplier.ts",
+    "calculate": "ts-node calculator.ts",
+    "calculateBmi": "ts-node bmiCalculator.ts"
   },
   "repository": {
     "type": "git",
