@@ -17,7 +17,7 @@ const parseArguments = (args: string[]): Params => {
   }
 }
 
-const calculateBmi = (height: number, weight: number): string => {
+export const calculateBmi = (height: number, weight: number): string => {
   if (height === 0) throw new Error('Height cannot be 0');
   const heightCm = height / 100;
   const bmi = weight / (heightCm * heightCm);
@@ -41,5 +41,3 @@ try {
   }
   console.log(errorMessage);
 }
-
-export {};
