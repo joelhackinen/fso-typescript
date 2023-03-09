@@ -17,7 +17,7 @@ app.get("/bmi", (req, res) => {
   const weightNum = Number(weight);
   const heightNum = Number(height);
 
-  if (isNaN(Number(weightNum)) || isNaN(Number(heightNum))) {
+  if (isNaN(weightNum) || isNaN(heightNum)) {
     return res.json({ error: "malformatted parameters" });
   }
 
@@ -25,7 +25,7 @@ app.get("/bmi", (req, res) => {
   try {
     bmi = calculateBmi(heightNum, weightNum);
   } catch (error: unknown) {
-    let errorMessage = "Error: "
+    let errorMessage = "Error: ";
     if (error instanceof Error) {
       errorMessage += error.message;
     }

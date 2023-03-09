@@ -12,17 +12,17 @@ const calculator = (a: number, b: number, op: Operation): number => {
     default:
       throw new Error('Operation is not multiply, add or divide!');
   }
-}
+};
 
-const num1: number = 3;
-const num2: number = 0;
+const num1 = 3;
+const num2 = 0;
 const operation: Operation = "divide";
 
 try {
   const returnValue = calculator(num1, num2, operation);
   console.log(`The result of operation '${operation}' for numbers ${num1} and ${num2} is ${returnValue}`);
 } catch (err: unknown) {
-  let errorMessage = 'Something went wrong: '
+  let errorMessage = 'Something went wrong: ';
   if (err instanceof Error) {
     errorMessage += err.message;
   }

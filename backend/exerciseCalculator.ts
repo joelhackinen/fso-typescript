@@ -26,7 +26,7 @@ const ratingDesc = (rating: Rating): RatingDescription => {
     default:
       return "bad";
   }
-}
+};
 
 
 const calculateExercises = (arr: number[], target: number): Result => {
@@ -53,7 +53,7 @@ const calculateExercises = (arr: number[], target: number): Result => {
     target,
     average,
   };
-}
+};
 
 const parseArguments = (args: string[]): Input => {
   if (args.length < 4) throw new Error('Not enough arguments');
@@ -71,13 +71,13 @@ const parseArguments = (args: string[]): Input => {
     data,
     target
   };
-}
+};
 
 try {
   const { data, target } = parseArguments(process.argv);
   console.log(calculateExercises(data, target));
 } catch (error: unknown) {
-  let errorMessage = 'Something bad happened.'
+  let errorMessage = 'Something bad happened.';
   if (error instanceof Error) {
     errorMessage += ' Error: ' + error.message;
   }
