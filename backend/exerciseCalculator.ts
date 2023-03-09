@@ -2,7 +2,7 @@ type Rating = 1 | 2 | 3;
 
 type RatingDescription = "good" | "ok" | "bad";
 
-interface Result {
+export interface Result {
   periodLength: number;
   trainingDays: number;
   target: number;
@@ -29,7 +29,7 @@ const ratingDesc = (rating: Rating): RatingDescription => {
 };
 
 
-const calculateExercises = (arr: number[], target: number): Result => {
+export const calculateExercises = (arr: number[], target: number): Result => {
   const periodLength = arr.length;
   if (periodLength == 0) throw new Error("Empty array!");
 
@@ -83,5 +83,3 @@ try {
   }
   console.log(errorMessage);
 }
-
-export {};
