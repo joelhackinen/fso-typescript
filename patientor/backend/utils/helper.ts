@@ -1,5 +1,5 @@
 import { v1 as uuid } from 'uuid';
-import { Gender, Patient } from "../types";
+import { Gender, Patient } from '../types';
 
 export const toPatientEntry = (object: unknown): Patient => {
   if (!object || typeof object !== 'object') {
