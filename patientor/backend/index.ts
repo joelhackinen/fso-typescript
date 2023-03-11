@@ -1,8 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 
-import data from './data/diagnoses';
-import { Diagnose } from './types';
+import diagnoses from './data/diagnoses';
+import patients from './data/patients';
+import { Diagnose, PatientNoSsn } from './types';
 
 const app = express();
 
@@ -17,9 +18,21 @@ app.get('/api/ping', (_req, res) => {
 });
 
 app.get('/api/diagnoses', (_req, res) => {
-  const diagnoses: Diagnose[] = data;
-  res.json(diagnoses);
-})
+  const data: Diagnose[] = diagnoses;
+  res.json(data);
+});
+
+app.get('/api/patients', (_req, res) => {
+  const data: PatientNoSsn[] = patients.map(({ id, name, dateOfBirth, gender, occupation}) => ({
+    id,
+    name,
+    dateOfBirth,
+    gender,
+    occupation
+  }));
+
+  res.json(data);
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
