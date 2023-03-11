@@ -4,6 +4,7 @@ import cors from 'cors';
 import diagnoses from './data/diagnoses';
 import patients from './data/patients';
 import { Diagnose, PatientNoSsn } from './types';
+import { toPatientEntry } from './utils/helper';
 
 const app = express();
 
@@ -32,6 +33,20 @@ app.get('/api/patients', (_req, res) => {
   }));
 
   res.json(data);
+});
+
+app.post('/api/patients', (req, res) => {
+  try {
+    const newPatient = toPatientEntry(req.body);
+    patients.push(newPatient);
+    res.json(newPatient);
+  } catch (error: unknown) {
+    let errorMessage = 'Something went wrong.';
+    if (error instanceof Error) {
+      errorMessage += ' Error: ' + error.message;
+    }
+    res.status(400).send(errorMessage);
+  }
 });
 
 app.listen(PORT, () => {
