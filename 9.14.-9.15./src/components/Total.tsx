@@ -1,4 +1,4 @@
-import { ContentProps } from "./Content";
+import { ContentProps } from "../types";
 
 const Total = ({ parts }: ContentProps) => {
   return (

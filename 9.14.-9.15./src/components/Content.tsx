@@ -1,17 +1,11 @@
-interface ICourse {
-  name: string;
-  exerciseCount: number;
-}
-
-export interface ContentProps {
-  parts: ICourse[];
-}
+import Part from "./Part";
+import { ContentProps } from "../types";
 
 const Content = ({ parts }: ContentProps) => {
   return (
     <>
-      {parts.map(({ name, exerciseCount }, i) => (
-        <p key={i}>{name} {exerciseCount}</p>
+      {parts.map((part, i) => (
+        <Part key={i} part={part} />
       ))}
     </>
   );
