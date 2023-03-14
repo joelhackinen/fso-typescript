@@ -3,7 +3,7 @@ import cors from 'cors';
 
 import diagnoses from './data/diagnoses';
 import patients from './data/patients';
-import { Diagnose, PatientNoSsn } from './types';
+import { Diagnose, PatientNoSsn, Patient } from './types';
 import { toPatientEntry } from './utils/helper';
 
 const app = express();
@@ -48,6 +48,15 @@ app.post('/api/patients', (req, res) => {
     res.status(400).send(errorMessage);
   }
 });
+
+app.get('/api/patients/:id', (req, res) => {
+  const patient = patients.find(p => p.id === req.params.id);
+
+  if (!patient) return res.status(400).json({ error: "not found" });
+
+  const patientWithEntries: Patient = { ...patient, entries: [] };
+  return res.json(patientWithEntries);
+})
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
