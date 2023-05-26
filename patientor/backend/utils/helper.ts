@@ -1,23 +1,42 @@
 import { v1 as uuid } from 'uuid';
-import { Gender, Patient } from '../types';
+import { Entry, Gender, Patient } from '../types';
 
 export const toPatientEntry = (object: unknown): Patient => {
   if (!object || typeof object !== 'object') {
     throw new Error('Incorrect or missing data');
   }
 
-  if ('name' in object && 'dateOfBirth' in object && 'ssn' in object && 'gender' in object && 'occupation' in object) {
+  if ('name' in object && 'dateOfBirth' in object && 'ssn' in object && 'gender' in object && 'occupation' in object && 'entries' in object) {
     const patient: Patient = {
       id: uuid(),
       name: parseName(object.name),
       dateOfBirth: parseDate(object.dateOfBirth),
       ssn: parseSsn(object.ssn),
       gender: parseGender(object.gender),
-      occupation: parseOccupation(object.occupation)
+      occupation: parseOccupation(object.occupation),
+      entries: parseEntries(object.entries),
     };
     return patient;
   }
   throw new Error('Incorrect or missing data');
+};
+
+const parseEntries = (entries: unknown) => {
+  if (!isArrayOfEntries(entries)) {
+    throw new Error('Incorrect or missing entries');
+  }
+  return entries;
+};
+
+const isArrayOfEntries = (list: unknown): list is Entry[] => {
+  return Array.isArray(list) && list.every(item => isEntry(item));
+};
+
+const isEntry = (object: unknown): object is Entry => {
+  if (!object || typeof object !== 'object') {
+    throw new Error('Incorrect or missing data');
+  }
+  return 'type' in object && isString(object.type) && ["Hospital", "OccupationalHealthcare", "HealthCheck"].includes(object.type);
 };
 
 const isString = (text: unknown): text is string => {

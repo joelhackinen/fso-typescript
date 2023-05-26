@@ -24,9 +24,9 @@ const App = () => {
   }, []);
 
   const match = useMatch("/patients/:id");
-  const patient = match 
-    ? patients.find(p => p.id === match.params.id)
-    : null
+  const patientId = match 
+    ? patients.find(p => p.id === match.params.id)?.id
+    : null;
   
   return (
     <div className="App">
@@ -40,7 +40,7 @@ const App = () => {
         <Divider hidden />
         <Routes>
           <Route path="/" element={<PatientListPage patients={patients} setPatients={setPatients} />} />
-          <Route path="/patients/:id" element={<PatientView patient={patient} />} />
+          <Route path="/patients/:id" element={<PatientView id={patientId} />} />
         </Routes>
       </Container>
     </div>

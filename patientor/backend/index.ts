@@ -3,7 +3,7 @@ import cors from 'cors';
 
 import diagnoses from './data/diagnoses';
 import patients from './data/patients';
-import { Diagnose, PatientNoSsn, Patient } from './types';
+import { Diagnosis, NonSensitivePatient } from './types';
 import { toPatientEntry } from './utils/helper';
 
 const app = express();
@@ -19,12 +19,12 @@ app.get('/api/ping', (_req, res) => {
 });
 
 app.get('/api/diagnoses', (_req, res) => {
-  const data: Diagnose[] = diagnoses;
+  const data: Diagnosis[] = diagnoses;
   res.json(data);
 });
 
 app.get('/api/patients', (_req, res) => {
-  const data: PatientNoSsn[] = patients.map(({ id, name, dateOfBirth, gender, occupation}) => ({
+  const data: NonSensitivePatient[] = patients.map(({ id, name, dateOfBirth, gender, occupation}) => ({
     id,
     name,
     dateOfBirth,
@@ -52,10 +52,11 @@ app.post('/api/patients', (req, res) => {
 app.get('/api/patients/:id', (req, res) => {
   const patient = patients.find(p => p.id === req.params.id);
 
-  if (!patient) return res.status(400).json({ error: "not found" });
+  if (!patient) {
+    return res.status(400).json({ error: "not found" });
+  }
 
-  const patientWithEntries: Patient = { ...patient, entries: [] };
-  return res.json(patientWithEntries);
+  return res.json(patient);
 })
 
 app.listen(PORT, () => {
