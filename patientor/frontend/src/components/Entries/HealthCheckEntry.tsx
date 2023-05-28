@@ -11,10 +11,11 @@ const HealthCheckEntry = ({ entry, diagnoses }: HealthCheckEntryProps) => {
   return (
     <div>
       <CheckIcon />
-      <p>{date} {description}</p>
+      {date} {description}
       <ul>
         {diagnosisCodes?.map((code, i) => <li key={i}>{code} {diagnoses.find(d => d.code === code)?.name}</li>)}
       </ul>
+      <hr />
     </div>
   )
 };

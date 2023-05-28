@@ -4,7 +4,7 @@ import cors from 'cors';
 import diagnoses from './data/diagnoses';
 import patients from './data/patients';
 import { Diagnosis, NonSensitivePatient } from './types';
-import { toPatientEntry } from './utils/helper';
+import { toPatientEntry, toEntry } from './utils/helper';
 
 const app = express();
 
@@ -57,7 +57,24 @@ app.get('/api/patients/:id', (req, res) => {
   }
 
   return res.json(patient);
-})
+});
+
+app.post('/api/patients/:id/entries', (req, res) => {
+  const patient = patients.find(p => p.id === req.params.id);
+  if (!patient) return res.status(400).json({ error: "patient not found" });
+
+  try {
+    const newEntry = toEntry(req.body);
+    patient.entries.push(newEntry);
+    return res.json(newEntry);
+  } catch (error: unknown) {
+    let errorMessage = 'Something went wrong.';
+    if (error instanceof Error) {
+      errorMessage += ' Error: ' + error.message;
+    }
+    return res.status(400).send(errorMessage);
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
