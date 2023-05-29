@@ -4,7 +4,7 @@ import cors from 'cors';
 import diagnoses from './data/diagnoses';
 import patients from './data/patients';
 import { Diagnosis, NonSensitivePatient } from './types';
-import { toPatientEntry, toEntry } from './utils/helper';
+import { toPatient, toEntry } from './utils/helper';
 
 const app = express();
 
@@ -37,7 +37,7 @@ app.get('/api/patients', (_req, res) => {
 
 app.post('/api/patients', (req, res) => {
   try {
-    const newPatient = toPatientEntry(req.body);
+    const newPatient = toPatient(req.body);
     patients.push(newPatient);
     res.json(newPatient);
   } catch (error: unknown) {

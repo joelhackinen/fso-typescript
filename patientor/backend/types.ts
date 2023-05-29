@@ -43,10 +43,6 @@ export interface HospitalEntry extends BaseEntry {
 
 export type Entry = HealthCheckEntry | OccupationalHealthcareEntry | HospitalEntry;
 
-export type HospitalEntryWithoutType = Omit<HospitalEntry, 'type'>;
-export type OccupationalWithoutType = Omit<OccupationalHealthcareEntry, 'type'>;
-export type HealthCheckWithoutType = Omit<HealthCheckEntry, 'type'>;
-
 export interface Patient {
   id: string;
   name: string;
@@ -68,3 +64,7 @@ export enum Gender {
 export type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
+
+type OmitCommonProperties<T, U> = Pick<T, Exclude<keyof T, keyof U>> & Pick<U, Exclude<keyof U, keyof T>>;
+
+export type Result = Prettify<OmitCommonProperties<BaseEntry, HospitalEntry>>;
