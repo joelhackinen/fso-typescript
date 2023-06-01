@@ -1,5 +1,16 @@
 import { v1 as uuid } from 'uuid';
-import { OccupationalHealthcareEntry, Entry, Gender, Patient, Diagnosis, BaseEntry, HealthCheckEntry, HospitalEntry, HealthCheckRating } from '../types';
+
+import {
+  Entry,
+  Gender,
+  Patient,
+  Diagnosis,
+  BaseEntry,
+  PHospitalEntry,
+  PHealthCheckEntry,
+  HealthCheckRating,
+  POccupationalHealthcareEntry,
+} from '../types';
 
 export const toPatient = (object: unknown): Patient => {
   if (!object || typeof object !== 'object') {
@@ -39,7 +50,7 @@ export const toEntry = (object: unknown): Entry => {
   };
 
   if ('employerName' in object) {
-    const occupational: OccupationalHealthcareEntry = {
+    const occupational: POccupationalHealthcareEntry = {
       ...base,
       type: 'OccupationalHealthcare',
       employerName: parseEmployerName(object.employerName),
@@ -49,7 +60,7 @@ export const toEntry = (object: unknown): Entry => {
   }
 
   if ('discharge' in object) {
-    const hospital: HospitalEntry = {
+    const hospital: PHospitalEntry = {
       ...base,
       type: 'Hospital',
       discharge: parseDischarge(object.discharge),
@@ -58,7 +69,7 @@ export const toEntry = (object: unknown): Entry => {
   }
 
   if ('healthCheckRating' in object) {
-    const healthCheck: HealthCheckEntry = {
+    const healthCheck: PHealthCheckEntry = {
       ...base,
       type: 'HealthCheck',
       healthCheckRating: parseHealthCheckRating(object.healthCheckRating),
@@ -105,13 +116,13 @@ const parseSickLeave = (object: object): undefined | { startDate: string, endDat
   }
   const { sickLeave } = object;
   if (!(typeof sickLeave === 'object' && 'startDate' in sickLeave && 'endDate' in sickLeave)) {
-    throw new Error('Incorrect sickLeave'); 
+    throw new Error('Incorrect sick leave'); 
   }
   if (!(isString(sickLeave.startDate) && isDate(sickLeave.startDate))) {
-    throw new Error('Incorrect or missing startDate');
+    throw new Error('Incorrect or missing start date');
   }
   if (!(isString(sickLeave.endDate) && isDate(sickLeave.endDate))) {
-    throw new Error('Incorrect or missing endDate');
+    throw new Error('Incorrect or missing end date');
   }
   return { startDate: sickLeave.startDate, endDate: sickLeave.endDate };
 };

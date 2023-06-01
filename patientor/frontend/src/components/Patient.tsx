@@ -1,60 +1,90 @@
+import { Button } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Patient, Diagnosis, Entry } from "../types";
+import { Patient, Diagnosis, Entry, EntryFormValues } from "../types";
 import patientService from "../services/patients"
-import { useNavigate } from "react-router-dom";
 import HospitalEntry from "./Entries/HospitalEntry";
 import OccupationalHealthcareEntry from "./Entries/OccupationalHealthcareEntry";
 import HealthCheckEntry from "./Entries/HealthCheckEntry";
+import AddEntryForm from "./AddEntryForm";
+import EntryForm from "./AddEntryForm/EntryForm";
+import Error from "./Error";
+import axios from "axios";
+import BaseEntry from "./Entries/BaseEntry";
 
 interface PatientViewProps {
-  id: string | null | undefined;
+  getPatient: () => Promise<Patient | null>;
   diagnoses: Diagnosis[];
 }
 
-const PatientView = ({ id, diagnoses } : PatientViewProps) => {
-  const navigate = useNavigate();
-  const [patient, setPatient] = useState<Patient | undefined>(undefined);
+const PatientView = ({ getPatient, diagnoses }: PatientViewProps) => {
+  const [patient, setPatient] = useState<Patient | null>(null);
+  const [formOpen, setFormOpen] = useState<boolean>(false);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    const fetchPatient = async () => {
-      if (!id) {
-        navigate("/");
-        return;
-      }
-      const patient = await patientService.get(id);
-      setPatient(patient);
-    }
+    const getAndSet = async () =>{
+      const p = await getPatient();
+      setPatient(p);
+    };
 
-    void fetchPatient();
-  }, [id, navigate]);
+    void getAndSet();
+  }, [getPatient]);
 
   if (!patient) {
     return null;
   }
+
+  const submit = async (values: EntryFormValues): Promise<void> => {
+    let entry: Entry;
+
+    try {
+      entry = await patientService.addEntry(values, patient.id);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data);
+        return;
+      }
+      setError("Unknown error");
+      return;
+    }
+
+    setFormOpen(false);
+    setError(undefined);
+    setPatient({ ...patient, entries: patient.entries.concat(entry) });
+  };
 
   return (
     <div>
       <h3>{patient.name} ({patient.gender})</h3>
       <p>ssn: {patient.ssn}</p>
       <p>occupation: {patient.occupation}</p>
+      <Button variant="contained" color="secondary" onClick={() => setFormOpen(!formOpen)}>
+        Add new entry
+      </Button>
+      <Error error={error} />
+      <AddEntryForm open={formOpen}>
+        <EntryForm submit={submit} />
+      </AddEntryForm>
       {patient.entries.length > 0 && <h3>entries</h3>}
       {patient.entries.map((entry, i) => (
         <div key={i}>
-          <EntryDetails entry={entry} diagnoses={diagnoses} />
+          <BaseEntry entry={entry} diagnoses={diagnoses} >
+            <EntryDetails entry={entry} />
+          </BaseEntry>
         </div>
       ))}
     </div>
   );
 };
 
-const EntryDetails = ({ entry, diagnoses }: { entry: Entry, diagnoses: Diagnosis[] }) => {
+const EntryDetails = ({ entry }: { entry: Entry }) => {
   switch (entry.type) {
     case "Hospital":
-      return <HospitalEntry entry={entry} diagnoses={diagnoses}/>;
+      return <HospitalEntry entry={entry} />;
     case "OccupationalHealthcare":
-      return <OccupationalHealthcareEntry entry={entry} diagnoses={diagnoses} />;
+      return <OccupationalHealthcareEntry entry={entry} />;
     case "HealthCheck":
-      return <HealthCheckEntry entry={entry} diagnoses={diagnoses} />;
+      return <HealthCheckEntry entry={entry} />;
     default:
       return null;
   }

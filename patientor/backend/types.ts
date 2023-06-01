@@ -1,3 +1,7 @@
+type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
+
 export interface Diagnosis {
   code: string;
   name: string;
@@ -19,12 +23,13 @@ export enum HealthCheckRating {
   "CriticalRisk" = 3
 }
 
-export interface HealthCheckEntry extends BaseEntry {
+interface HealthCheckEntry extends BaseEntry {
   type: "HealthCheck";
   healthCheckRating: HealthCheckRating;
 }
 
-export interface OccupationalHealthcareEntry extends BaseEntry {
+
+interface OccupationalHealthcareEntry extends BaseEntry {
   type: "OccupationalHealthcare";
   employerName: string;
   sickLeave?: {
@@ -33,7 +38,7 @@ export interface OccupationalHealthcareEntry extends BaseEntry {
   };
 }
 
-export interface HospitalEntry extends BaseEntry {
+interface HospitalEntry extends BaseEntry {
   type: "Hospital",
   discharge: {
     date: string;
@@ -41,7 +46,10 @@ export interface HospitalEntry extends BaseEntry {
   };
 }
 
-export type Entry = HealthCheckEntry | OccupationalHealthcareEntry | HospitalEntry;
+export type PHealthCheckEntry = Prettify<HealthCheckEntry>;
+export type POccupationalHealthcareEntry = Prettify<OccupationalHealthcareEntry>;
+export type PHospitalEntry = Prettify<HospitalEntry>;
+export type Entry = PHealthCheckEntry | POccupationalHealthcareEntry | PHospitalEntry;
 
 export interface Patient {
   id: string;
@@ -61,10 +69,7 @@ export enum Gender {
   Other = 'other',
 }
 
-export type Prettify<T> = {
-  [K in keyof T]: T[K];
-} & {};
-
 type OmitCommonProperties<T, U> = Pick<T, Exclude<keyof T, keyof U>> & Pick<U, Exclude<keyof U, keyof T>>;
 
 export type Result = Prettify<OmitCommonProperties<BaseEntry, HospitalEntry>>;
+

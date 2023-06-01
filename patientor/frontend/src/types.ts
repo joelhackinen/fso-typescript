@@ -1,3 +1,7 @@
+type Prettify<T> = {
+  [K in keyof T]: T[K]
+} & {};
+
 export interface Diagnosis {
   code: string;
   name: string;
@@ -47,7 +51,8 @@ export interface HospitalEntry extends BaseEntry {
   };
 }
 
-export type Entry = HealthCheckEntry | OccupationalHealthcareEntry | HospitalEntry;
+type IEntry = HealthCheckEntry | OccupationalHealthcareEntry | HospitalEntry;
+export type Entry = Prettify<IEntry>;
 
 export interface Patient {
   id: string;
@@ -59,4 +64,13 @@ export interface Patient {
   entries: Entry[];
 }
 
+export type NonSensitivePatient = Omit<Patient, 'ssn' | 'entries'>;
+
+export type EntryOption = Entry['type'];
+
 export type PatientFormValues = Omit<Patient, "id" | "entries">;
+
+export type EntryFormValues =
+  | Omit<HealthCheckEntry, "id" | "type">
+  | Omit<OccupationalHealthcareEntry, "id" | "type">
+  | Omit<HospitalEntry, "id" | "type">;

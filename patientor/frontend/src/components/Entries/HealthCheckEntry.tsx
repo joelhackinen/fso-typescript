@@ -1,21 +1,18 @@
 import CheckIcon from '@mui/icons-material/Check';
-import { Diagnosis, HealthCheckEntry as IHealthCheckEntry } from "../../types";
+import { HealthCheckEntry as IHealthCheckEntry } from "../../types";
 
 interface HealthCheckEntryProps {
   entry: IHealthCheckEntry;
-  diagnoses: Diagnosis[];
 }
 
-const HealthCheckEntry = ({ entry, diagnoses }: HealthCheckEntryProps) => {
-  const { date, description, diagnosisCodes } = entry;
+const HealthCheckEntry = ({ entry }: HealthCheckEntryProps) => {
+  const { healthCheckRating } = entry;
+
   return (
     <div>
       <CheckIcon />
-      {date} {description}
-      <ul>
-        {diagnosisCodes?.map((code, i) => <li key={i}>{code} {diagnoses.find(d => d.code === code)?.name}</li>)}
-      </ul>
-      <hr />
+      <br />
+      Rating {healthCheckRating}
     </div>
   )
 };
