@@ -1,13 +1,25 @@
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, Select, SelectChangeEvent, OutlinedInput, MenuItem, Checkbox, ListItemText, InputLabel } from "@mui/material";
 import { SyntheticEvent, useState } from "react";
-import { BaseEntry, EntryFormValues, EntryOption, HealthCheckRating } from "../../types";
+import { BaseEntry, Diagnosis, EntryFormValues, EntryOption, HealthCheckRating } from "../../types";
 
 interface Props {
   submit: (values: EntryFormValues) => Promise<void>;
-  type?: EntryOption;
+  type: EntryOption;
+  diagnoses: Diagnosis[];
 }
 
-const EntryForm = ({ submit, type }: Props) => {
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
+const EntryForm = ({ submit, type, diagnoses }: Props) => {
   const [description, setDescription] = useState<string>("");
   const [date, setDate] = useState<string>("");
   const [specialist, setSpecialist] = useState<string>("");
@@ -17,20 +29,16 @@ const EntryForm = ({ submit, type }: Props) => {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [rating, setRating] = useState<HealthCheckRating>(0);
-  const [codes, setCodes] = useState<string>('');
+  const [codes, setCodes] = useState<Diagnosis['code'][]>([]);
 
   const handleSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
-
-    const splittedCodes = codes.split(", ");
-    const diagnosisCodes = splittedCodes[0] === "" ? undefined : splittedCodes;
-
 
     const base: Omit<BaseEntry, "id"> = {
       description,
       date,
       specialist,
-      diagnosisCodes,
+      diagnosisCodes: codes,
     };
 
     switch (type) {
@@ -61,14 +69,20 @@ const EntryForm = ({ submit, type }: Props) => {
     }
   };
 
+  const handleSelection = (event: SelectChangeEvent<typeof codes>) => {
+    const { target: { value } } = event;
+    setCodes(typeof value === 'string' ? value.split(',') : value);
+  };
+
   return (
     <div>
-      <form onSubmit={handleSubmit} >
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <TextField
           label="Description"
           fullWidth 
           value={description}
           onChange={({ target }) => setDescription(target.value)}
+          style={{ marginTop: 10 }}
         />
         <TextField
           label="Date"
@@ -83,12 +97,24 @@ const EntryForm = ({ submit, type }: Props) => {
           value={specialist}
           onChange={({ target }) => setSpecialist(target.value)}
         />
-        <TextField
-          label="Diagnosis codes"
-          fullWidth
+        <InputLabel id="multiple-checkbox-label">Diagnosis codes</InputLabel>
+        <Select
+          labelId="multiple-checkbox-label"
+          id="multiple-checkbox-label"
+          multiple
           value={codes}
-          onChange={({ target }) => setCodes(target.value)}
-        />
+          onChange={handleSelection}
+          input={<OutlinedInput label="Diagnosis codes" />}
+          renderValue={(selected) => selected.join(', ')}
+          MenuProps={MenuProps}
+        >
+          {diagnoses.map(({ code }, i) => (
+            <MenuItem key={i} value={code} >
+              <Checkbox checked={codes.indexOf(code) > -1} />
+              <ListItemText primary={code} />
+            </MenuItem>
+          ))}
+        </Select>
         {
           (() => {
             switch (type) {

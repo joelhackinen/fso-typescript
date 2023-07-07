@@ -1,15 +1,13 @@
-import { Button } from "@mui/material";
-import { useEffect, useState } from "react";
-import { Patient, Diagnosis, Entry, EntryFormValues } from "../types";
+import { Button, Alert } from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
+import { Patient, Diagnosis, Entry, EntryFormValues, EntryOption } from "../types";
 import patientService from "../services/patients"
-import HospitalEntry from "./Entries/HospitalEntry";
-import OccupationalHealthcareEntry from "./Entries/OccupationalHealthcareEntry";
-import HealthCheckEntry from "./Entries/HealthCheckEntry";
 import AddEntryForm from "./AddEntryForm";
-import EntryForm from "./AddEntryForm/EntryForm";
-import Error from "./Error";
 import axios from "axios";
-import BaseEntry from "./Entries/BaseEntry";
+import EntryComponent from "./Entries/Entry";
+import { useNavigate } from "react-router-dom";
+import TypeSelector from "./AddEntryForm/TypeSelector";
+import EntryForm from "./AddEntryForm/EntryForm";
 
 interface PatientViewProps {
   getPatient: () => Promise<Patient | null>;
@@ -17,25 +15,30 @@ interface PatientViewProps {
 }
 
 const PatientView = ({ getPatient, diagnoses }: PatientViewProps) => {
+  const navigate = useNavigate();
   const [patient, setPatient] = useState<Patient | null>(null);
   const [formOpen, setFormOpen] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>(undefined);
+  const [type, setType] = useState<EntryOption>('HealthCheck');
 
   useEffect(() => {
-    const getAndSet = async () =>{
+    const getAndSet = async () => {
       const p = await getPatient();
       setPatient(p);
     };
 
-    void getAndSet();
-  }, [getPatient]);
+    try {
+      void getAndSet();
+    } catch (_) {
+      console.log("Patient not found");
+      navigate("/");
+    }
+  }, [getPatient, navigate]);
 
-  if (!patient) {
-    return null;
-  }
-
-  const submit = async (values: EntryFormValues): Promise<void> => {
+  const submit = useCallback(async (values: EntryFormValues): Promise<void> => {
     let entry: Entry;
+
+    if (!patient) return;
 
     try {
       entry = await patientService.addEntry(values, patient.id);
@@ -51,7 +54,11 @@ const PatientView = ({ getPatient, diagnoses }: PatientViewProps) => {
     setFormOpen(false);
     setError(undefined);
     setPatient({ ...patient, entries: patient.entries.concat(entry) });
-  };
+  }, [patient]);
+
+  if (!patient) {
+    return null;
+  }
 
   return (
     <div>
@@ -61,33 +68,19 @@ const PatientView = ({ getPatient, diagnoses }: PatientViewProps) => {
       <Button variant="contained" color="secondary" onClick={() => setFormOpen(!formOpen)}>
         Add new entry
       </Button>
-      <Error error={error} />
+      {error && <Alert severity="info">{error}</Alert>}
       <AddEntryForm open={formOpen}>
-        <EntryForm submit={submit} />
+        <TypeSelector typeValue={type} setType={setType} />
+        <EntryForm submit={submit} type={type} diagnoses={diagnoses} />
       </AddEntryForm>
       {patient.entries.length > 0 && <h3>entries</h3>}
       {patient.entries.map((entry, i) => (
         <div key={i}>
-          <BaseEntry entry={entry} diagnoses={diagnoses} >
-            <EntryDetails entry={entry} />
-          </BaseEntry>
+          <EntryComponent entry={entry} diagnoses={diagnoses} />
         </div>
       ))}
     </div>
   );
-};
-
-const EntryDetails = ({ entry }: { entry: Entry }) => {
-  switch (entry.type) {
-    case "Hospital":
-      return <HospitalEntry entry={entry} />;
-    case "OccupationalHealthcare":
-      return <OccupationalHealthcareEntry entry={entry} />;
-    case "HealthCheck":
-      return <HealthCheckEntry entry={entry} />;
-    default:
-      return null;
-  }
 };
 
 export default PatientView;
